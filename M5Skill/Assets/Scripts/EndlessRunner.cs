@@ -11,7 +11,6 @@ public class EndlessRunner : MonoBehaviour
     
     private InputAction jump;
     private float velocity;
-    private float jumpTime;
 
     enum State { running, jumping };
     State currentState = State.running;
@@ -19,20 +18,10 @@ public class EndlessRunner : MonoBehaviour
     private void Start()
     {
         jump = InputSystem.actions.FindAction("Jump");
-
-        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
-        foreach (AnimationClip clip in clips)
-        {
-            if (clip.name == "Jump")
-            {
-                jumpTime = clip.length;
-            }
-        }
     }
 
     private void Update()
     {
-        Debug.Log(velocity);
         transform.Translate(new Vector3(0, velocity, 0) * Time.deltaTime);
 
         jump.performed += context =>
@@ -42,7 +31,6 @@ public class EndlessRunner : MonoBehaviour
                 currentState = State.jumping;
                 velocity = jumpForce;
                 animator.SetBool("isJumping", true);
-                StartCoroutine(EndJump());
             }
         };
 
@@ -52,13 +40,9 @@ public class EndlessRunner : MonoBehaviour
             currentState = State.running;
 
         if (currentState == State.running)
+        {
+            animator.SetBool("isJumping", false);
             velocity = 0;
-    }
-
-    IEnumerator EndJump()
-    {
-        yield return new WaitForSeconds(jumpTime);
-        animator.SetBool("isJumping", false);
-        velocity = 0;
+        }
     }
 }
